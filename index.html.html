@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Pokemon</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/2.0.3/fetch.min.js"></script>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+  </head>
+  <body>
+    <h1>Pokemon: Special Defense vs Total Stats</h1>
+    <select id="legendary-selector">
+      <option value="All">(All)</option>
+      <option value="True">True</option>
+      <option value="False">False</option>
+    </select>
+    <select id="generation-selector">
+      <option value="All">(All)</option>
+      <option value=1>1</option>
+      <option value=2>2</option>
+      <option value=3>3</option>
+      <option value=4>4</option>
+      <option value=5>5</option>
+      <option value=6>6</option>
+    </select>
+    <script src="pokemon.js"></script>
+  </body>
+  <style>
+    div.tooltip {
+      position: absolute;
+      text-align: left;
+      vertical-align: middle;
+      width: 120;
+      height: 50px;
+      padding: 2px;
+      font: 12px Arial;
+      background: white;
+      border: 1px solid black;
+      pointer-events: none;
+    }
+    h1 {
+      font-family: Arial;
+      font-weight: 100;
+      color: lightgrey;
+    }
+    .box {
+      display: inline-block;
+      height: 20px;
+      width: 20px;
+      border: 1px solid;
+    }
+  </style>
+</html>
