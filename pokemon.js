@@ -4,7 +4,7 @@
     let svgContainer = ""
     // dimensions for svg
     const measurements = {
-        width: 1000,
+        width: 1200,
         height: 600,
         marginAll: 50
     }
@@ -13,8 +13,42 @@
       .domain(["Bug", "Dark", "Dragon", "Electric", "Fairy", "Fighting", "Fire", "Ghost", "Grass", "Ground", "Ice", "Normal", "Poison", "Psychic", "Rock", "Steel", "Water"])
       .range(["#4E79A7", "#A0CBE8", "#FFA64D", "#F28E2B", "#FFBE7D", "#59A14F", "#8CD17D", "#B6992D", "#499894", "#86BCB6", "#FABFD2", "#E15759", "#FF9D9A", "#79706E", "#CCCCCC", "#BAB0AC", "#D37295"])
 
-    let legendarySelection = "All";
-    let generationSelection = "All";
+      const colors = {
+
+        "Bug": "#4E79A7",
+
+        "Dark": "#A0CBE8",
+
+        "Electric": "#F28E2B",
+
+        "Fairy": "#FFBE7D",
+
+        "Fighting": "#59A14F",
+
+        "Fire": "#8CD17D",
+
+        "Ghost": "#B6992D",
+
+        "Grass": "#499894",
+
+        "Ground": "#86BCB6",
+
+        "Ice": "#FABFD2",
+
+        "Normal": "#E15759",
+
+        "Poison": "#FF9D9A",
+
+        "Psychic": "#79706E",
+
+        "Steel": "#BAB0AC",
+
+        "Water": "#D37295"
+
+    }
+
+    let legendarySelection = d3.select('#legendary-selector').node().value;
+    let generationSelection = d3.select('#legendary-selector').node().value;
 
     // load data and append svg to body
     svgContainer = d3.select('body').append("svg")
@@ -28,7 +62,6 @@
         // get arrays of GRE Score and Chance of Admit
         let spDef = data.map((row) => parseInt(row["Sp. Def"]))
         let total = data.map((row) =>  parseFloat(row["Total"]))
-        let colorValue = data.map((row) =>  parseFloat(row["Type 1"]));
         // find range of data
         const limits = findMinMax(spDef, total)
         // create a function to scale x coordinates
@@ -42,9 +75,9 @@
 
         drawAxes(scaleX, scaleY)
 
-        plotData(scaleX, scaleY)
+        makeFilterSelection(scaleX, scaleY)
 
-        makeFilterSelection(scaleX, scaleY, legendarySelection, generationSelection)
+        makeLegend()
     }
 
     function findMinMax(x, y) {
@@ -74,58 +107,7 @@
             .call(yAxis)
     }
 
-    function plotData(scaleX, scaleY) {
-        const xMap = function(d) { return scaleX(+d["Sp. Def"]) }
-        const yMap = function(d) { return scaleY(+d["Total"]) }
-
-        let div = d3.select("body").append("div")
-            .attr("class", "tooltip")
-            .style("opacity", 0);
-
-        // svgContainer.selectAll(".circle")
-        //     .data(data)
-        //     .enter()
-        //     .append('circle')
-        //         .attr('cx', xMap)
-        //         .attr('cy', yMap)
-        //         .attr('r', 4)
-        //         .style("fill", function (d) { return color(d["Type 1"]) })
-        //         .on("mouseover", function(d) {
-        //            div.transition()
-        //                .duration(200)
-        //                .style("opacity", .8);
-        //            div.html(d["Name"] + "<br/>" + d["Type 1"] + "<br/>" + d["Type 2"])
-        //               .style("left", (d3.event.pageX) + "px")
-        //               .style("top", (d3.event.pageY - 28) + "px");
-        //            })
-        //         .on("mouseout", function(d) {
-        //            div.transition()
-        //                .duration(500)
-        //                .style("opacity", 0);
-        //         });
-    }
-
-    // function makeFilterSection() {
-    //   let typeFilter = d3.select('body')
-    //     .append('select')
-    //     .attr('id', 'type-filter')
-    //   d3.select('#type-filter')
-    //     .data(colors)
-    //     .enter()
-    //     .append('option')
-    //     .attr('value', function(d) {
-    //       let keys = Object.keys(d)
-    //       let key = keys[0]
-    //       return d[key]
-    //     })
-    //     .html(function(d) {
-    //       let keys = Object.keys(d)
-    //       let key = keys[0]
-    //       return d[key]
-    //     })
-    // }
-
-    function makeFilterSelection(scaleX, scaleY, legendarySelection, generationSelection) {
+    function makeFilterSelection(scaleX, scaleY) {
       const xMap = function(d) { return scaleX(+d["Sp. Def"]) }
       const yMap = function(d) { return scaleY(+d["Total"]) }
 
@@ -135,12 +117,68 @@
 
       d3.select("#generation-selector")
         .on("change",function(d){
-          var selected = d3.select("#generation-selector").node().value;
-          console.log( selected );
+          svgContainer.selectAll("circle").remove()
+          let selectedGeneration = d3.select("#generation-selector").node().value;
+          let selectedLegendary = d3.select("#legendary-selector").node().value;
           svgContainer.selectAll(".circle")
-              .data(data.filter(function(d) {return d["Generation"] == parseInt(1)}))
+              .data(data)
               .enter()
               .append('circle')
+              .filter(function(d) {
+                if (selectedGeneration == "All") {
+                  return d
+                } else {
+                    return d["Generation"] == parseInt(selectedGeneration)
+                }
+              })
+              .filter(function(d) {
+                if (selectedLegendary == "All") {
+                  return d;
+                } else {
+                    return d["Legendary"] == selectedLegendary
+                }
+              })
+                  .attr('cx', xMap)
+                  .attr('cy', yMap)
+                  .attr('r', 4)
+                  .style("fill", function (d) { return color(d["Type 1"]) })
+                  .on("mouseover", function(d) {
+                     div.transition()
+                         .duration(200)
+                         .style("opacity", .8);
+                     div.html(d["Name"] + "<br/>" + d["Type 1"] + "<br/>" + d["Type 2"])
+                        .style("left", (d3.event.pageX) + "px")
+                        .style("top", (d3.event.pageY - 28) + "px");
+                     })
+                  .on("mouseout", function(d) {
+                     div.transition()
+                         .duration(500)
+                         .style("opacity", 0);
+                  });
+      })
+
+      d3.select("#legendary-selector")
+        .on("change",function(d){
+          let selectedGeneration = d3.select("#generation-selector").node().value;
+          let selectedLegendary = d3.select("#legendary-selector").node().value;
+          svgContainer.selectAll(".circle")
+              .data(data)
+              .enter()
+              .append('circle')
+              .filter(function(d) {
+                if (selectedGeneration == "All") {
+                  return d
+                } else {
+                    return d["Generation"] == parseInt(selectedGeneration)
+                }
+              })
+              .filter(function(d) {
+                if (selectedLegendary == "All") {
+                  return d;
+                } else {
+                    return d["Legendary"] == selectedLegendary
+                }
+              })
                   .attr('cx', xMap)
                   .attr('cy', yMap)
                   .attr('r', 4)
@@ -160,5 +198,28 @@
                   });
       })
     }
+
+    function makeLegend() {
+      let legend = document.createElement("div");
+      legend.id = "legend";
+      document.body.appendChild(legend);
+      let container = document.getElementById("legend");
+
+      for (let key in colors) {
+          let boxContainer = document.createElement("div");
+          let box = document.createElement("div");
+          let label = document.createElement("span");
+
+          label.innerHTML = key;
+          box.className = "box";
+          box.style.backgroundColor = colors[key];
+
+          boxContainer.appendChild(box);
+          boxContainer.appendChild(label);
+
+          container.appendChild(boxContainer);
+
+     }
+   }
 
 })()
